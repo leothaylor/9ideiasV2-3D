@@ -1,99 +1,117 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Mapa de Knowledge 3D</title>
-<link rel="stylesheet" href="css/style.css">
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://esm.sh/three@0.180.0",
-    "three/addons/": "https://esm.sh/three@0.180.0/examples/jsm/",
-    "3d-force-graph": "https://esm.sh/3d-force-graph@1.73.3?deps=three@0.180.0",
-    "troika-three-text": "https://esm.sh/troika-three-text@0.52.4?deps=three@0.180.0"
-  }
-}
-</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090c12">
+  <meta name="description" content="Atlas: um mapa interativo das conexões entre suas ideias, projetos e conhecimentos.">
+  <title>Mapa de Knowledge — Conexões</title>
+  <link rel="stylesheet" href="css/atlas.css">
 </head>
 <body>
-<header class="app-header">
-  <h1>Mapa de Knowledge</h1>
-  <div class="toolbar">
-    <button id="btn-add" title="Adicionar ideia">+ Ideia</button>
-    <button id="btn-export" title="Exportar JSON">Exportar</button>
-    <button id="btn-import" title="Importar arquivo">Importar</button>
-    <button id="btn-reset" title="Resetar física">Resetar física</button>
-    <button id="btn-filters" class="mobile-only" title="Mostrar filtros">Filtros</button>
-  </div>
-  <input type="file" id="file-input" accept=".json,.md,.txt" hidden>
-</header>
-
-<div class="app-body">
-  <aside class="side-panel" id="side-panel">
-    <h2>Legenda</h2>
-    <div class="legend" id="legend"></div>
-    <h2>Status</h2>
-    <div class="legend" id="legend-status"></div>
-    <h2>Tags</h2>
-    <div class="tag-list" id="tag-list"></div>
+<svg width="0" height="0" style="position:absolute;visibility:hidden" aria-hidden="true">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2" fill="currentColor"/><circle cx="5" cy="17" r="2" fill="currentColor"/><circle cx="19" cy="17" r="2" fill="currentColor"/><circle cx="12" cy="12.5" r="2.6" fill="currentColor"/><path d="M12 6.5v3.3m-5.1 5.3 3-2m7.2 2-3-2" stroke="currentColor" stroke-width="1.5" opacity=".6"/></symbol>
+    <symbol id="i-orbit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="18.7" cy="6.1" r="2" fill="currentColor"/><circle cx="4.9" cy="15.3" r="2" fill="currentColor"/><path d="M3 10c3-7 13-9 18-3M3 18c7 5 13 2 18-5" stroke="currentColor" fill="none" stroke-width="1.3" opacity=".65"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m-4 4 4-4 4 4M4 17v4h16v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-fit" viewBox="0 0 24 24"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 8a9 9 0 0 0-15-3L3 8M3 3v5h5m-5 8a9 9 0 0 0 15 3l3-3m0 5v-5h-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-cube" viewBox="0 0 24 24"><path d="m12 2 9 5v10l-9 5-9-5V7l9-5Zm0 10 9-5M12 12 3 7m9 5v10" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+<div class="app">
+  <button type="button" class="mobile-toggle" id="sidebar-toggle" aria-label="Abrir navegação"><svg width="18" height="18"><use href="#i-menu"/></svg></button>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-icon"><svg><use href="#i-orbit"/></svg></span>
+      <div><strong>Mapa de Knowledge</strong><small>Mapa de conhecimento</small></div>
+    </div>
+    <div style="position:relative;margin-top:23px">
+      <label class="side-search" for="search"><svg><use href="#i-search"/></svg><input type="search" id="search" placeholder="Buscar conceitos…" autocomplete="off" aria-label="Buscar conceitos"></label>
+      <div class="search-results" id="search-results" hidden></div>
+    </div>
+    <div class="side-title">Visualização</div>
+    <button type="button" class="nav-item active" id="nav-all"><svg><use href="#i-network"/></svg> Rede completa</button>
+    <button type="button" class="nav-item" id="nav-local"><svg><use href="#i-orbit"/></svg> Conexões próximas</button>
+    <div class="side-title">Categorias</div>
+    <div id="category-list"></div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-tip"><strong>Conhecimento conectado</strong>Selecione um ponto para explorar suas relações. Você também pode criar conexões manualmente entre ideias.</div>
+      <div class="sidebar-foot"><i class="live-indicator"></i><span id="save-label">Carregando…</span></div>
+    </div>
   </aside>
-
-  <main class="canvas-box" id="canvas-box">
-    <div class="empty-hint" id="empty-hint" hidden>Nenhuma ideia ainda. Clique em "+ Ideia" para começar.</div>
+  <main class="workspace">
+    <header class="topbar">
+      <div><h1>Mapa de conhecimento</h1><p>Uma visão conectada das suas ideias e projetos</p></div>
+      <div class="top-actions">
+        <button type="button" class="btn ghost" id="btn-import" title="Importar JSON ou notas"><svg><use href="#i-upload"/></svg><span>Importar</span></button>
+        <button type="button" class="btn ghost" id="btn-export" title="Exportar backup JSON"><svg><use href="#i-download"/></svg><span>Exportar</span></button>
+        <input type="file" hidden id="input-file" accept=".json,.md,.txt">
+        <span class="divider"></span>
+        <a href="classic.html" class="btn ghost" title="Abrir mapa clássico 3D"><svg><use href="#i-cube"/></svg><span>3D clássico</span></a>
+        <button type="button" class="btn primary" id="btn-new"><svg><use href="#i-plus"/></svg><span>Nova ideia</span></button>
+      </div>
+    </header>
+    <section class="graph-shell">
+      <svg class="graph-stage" id="scene" aria-label="Grafo interativo de conhecimentos" role="group">
+        <defs><pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.8" fill="#626e8a" opacity=".115"/></pattern></defs>
+        <rect class="graph-grid" x="0" y="0" width="100%" height="100%" fill="url(#dots)"/>
+        <g id="world"></g>
+      </svg>
+      <div class="graph-top-left">
+        <div class="status-pill"><strong id="stat-nodes">0</strong> conceitos <span style="opacity:.5">/</span> <strong id="stat-links">0</strong> conexões</div>
+      </div>
+      <div class="graph-legend">
+        <span><i style="background:#a4aaff"></i> Relações explícitas</span>
+        <span><i style="background:#75c4a3"></i> Pontos conectados</span>
+      </div>
+      <div class="graph-help"><span><b>Arraste</b> para navegar</span><span><b>Scroll</b> para zoom</span><span><b>Clique</b> para explorar</span></div>
+      <div class="graph-toolbar">
+        <button type="button" id="btn-zoom-out" title="Afastar"><svg><use href="#i-minus"/></svg></button>
+        <button type="button" id="btn-zoom-in" title="Aproximar"><svg><use href="#i-plus"/></svg></button>
+        <span class="vertical"></span>
+        <button type="button" id="btn-fit" title="Enquadrar todos os conceitos"><svg><use href="#i-fit"/></svg></button>
+        <button type="button" id="btn-reset-layout" title="Reorganizar automaticamente"><svg><use href="#i-refresh"/></svg></button>
+        <span id="zoom-level" style="font-size:10px;color:#8994aa;min-width:38px;text-align:center">100%</span>
+      </div>
+      <aside class="inspector" id="inspector" hidden>
+        <div class="inspect-top"><span class="inspect-kind"><i id="inspect-dot"></i><span id="inspect-category"></span></span><button class="close-btn" type="button" id="btn-close-inspector" aria-label="Fechar detalhes">×</button></div>
+        <h2 id="inspect-title"></h2>
+        <p class="inspect-description" id="inspect-description"></p>
+        <div class="tag-row" id="inspect-tags"></div>
+        <hr>
+        <p class="inspect-label">Explorar vizinhança</p>
+        <div class="depth-row"><button type="button" data-depth="1" class="active">1 nível</button><button type="button" data-depth="2">2 níveis</button><button type="button" data-depth="3">3 níveis</button></div>
+        <hr>
+        <p class="inspect-label">Conexões diretas</p>
+        <div class="neighbors" id="neighbors"></div>
+        <div class="inspect-actions"><select id="connect-target" aria-label="Conectar a outro conceito"></select><button type="button" id="btn-connect">Conectar</button></div>
+        <div class="inspect-actions"><button class="btn small" id="btn-edit" type="button" style="flex:1;background:#202b3d;color:#dce4f6">Editar conceito</button><button class="btn small" id="btn-delete" type="button" style="background:#2d222d;color:#d5a7b1">Excluir</button></div>
+      </aside>
+      <div class="empty" id="empty" hidden><strong>Nenhum conceito encontrado</strong><p>Crie a primeira ideia e comece sua rede.</p><button class="btn primary" type="button" id="btn-empty-new">Adicionar conceito</button></div>
+    </section>
   </main>
 </div>
-
-<p class="footer-hint">Arraste para girar · scroll/pinça para zoom · arraste um nó para mover · toque rápido mostra detalhes</p>
-
-<dialog id="dialog-add">
-  <form id="form-add" method="dialog">
-    <h2>Nova ideia</h2>
-    <label>Título
-      <input type="text" id="add-label" required maxlength="60">
-    </label>
-    <label>Descrição
-      <textarea id="add-text" rows="3" maxlength="400"></textarea>
-    </label>
-    <label>Categoria
-      <select id="add-category">
-        <option value="bjj">BJJ</option>
-        <option value="financeiro">Financeiro</option>
-        <option value="negocio">Negócio</option>
-        <option value="organizacao">Organização</option>
-        <option value="ferramenta">Ferramenta</option>
-        <option value="outra">Outra</option>
-      </select>
-    </label>
-    <label>Status
-      <select id="add-status">
-        <option value="pending">Pendente</option>
-        <option value="progress">Em andamento</option>
-        <option value="done">Concluído</option>
-      </select>
-    </label>
-    <label>Tags (separadas por vírgula)
-      <input type="text" id="add-tags" placeholder="ex: acs, captura">
-    </label>
-    <div class="dialog-actions">
-      <button type="button" id="btn-add-cancel">Cancelar</button>
-      <button type="submit" id="btn-add-confirm">Adicionar</button>
+<div class="modal-backdrop" id="modal" hidden>
+  <form class="modal" id="form-idea">
+    <h2 id="modal-title">Adicionar conceito</h2><p id="modal-subtitle">Uma nova ideia para conectar ao seu mapa.</p>
+    <div class="field"><label for="field-name">Título da ideia</label><input type="text" id="field-name" maxlength="100" placeholder="Ex.: Aprendizagem motora" required></div>
+    <div class="field"><label for="field-description">Descrição</label><textarea id="field-description" rows="4" placeholder="O que você quer registrar sobre este conceito?"></textarea></div>
+    <div class="field-row">
+      <div class="field"><label for="field-category">Categoria</label><select id="field-category"><option value="bjj">Jiu-jitsu</option><option value="financeiro">Financeiro</option><option value="negocio">Negócios</option><option value="organizacao">Organização</option><option value="ferramenta">Ferramentas</option><option value="outra">Outros</option></select></div>
+      <div class="field"><label for="field-status">Status</label><select id="field-status"><option value="pending">Pendente</option><option value="progress">Em andamento</option><option value="done">Concluído</option></select></div>
     </div>
+    <div class="field"><label for="field-tags">Tags (separadas por vírgula)</label><input type="text" id="field-tags" placeholder="ex.: bjj, memória, estudo"></div>
+    <div class="modal-actions"><button class="btn ghost" id="btn-cancel" type="button">Cancelar</button><button class="btn primary" type="submit">Salvar ideia</button></div>
   </form>
-</dialog>
-
-<dialog id="dialog-import-mode">
-  <form method="dialog">
-    <h2>Importar dados</h2>
-    <p>Deseja mesclar com os dados atuais ou substituir tudo?</p>
-    <div class="dialog-actions">
-      <button type="button" id="btn-import-merge">Mesclar</button>
-      <button type="button" id="btn-import-replace">Substituir</button>
-      <button type="button" id="btn-import-cancel">Cancelar</button>
-    </div>
-  </form>
-</dialog>
-
-<script type="module" src="js/main.js"></script>
+  <button type="button" id="btn-close-modal" hidden>Fechar</button>
+</div>
+<div id="toast" class="toast" hidden role="status"></div>
+<script type="module" src="js/atlas.js"></script>
 </body>
 </html>
