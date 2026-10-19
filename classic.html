@@ -109,6 +109,16 @@
     <div class="dialog-actions"><button id="idea-cancel" type="button" class="btn light">Cancelar</button><button type="submit" class="btn dark">Salvar conceito</button></div>
   </form>
 </dialog>
+<dialog id="import-dialog">
+  <div class="dialog-head"><div><p class="eyebrow">IMPORTAÇÃO</p><h2>Como importar?</h2></div></div>
+  <p id="import-count" class="import-intro"></p>
+  <p class="import-explain">Mesclar acrescenta conceitos e relações; substituir apaga o mapa atual deste navegador. Faça um backup JSON se necessário.</p>
+  <div class="dialog-actions">
+    <button id="import-cancel" type="button" class="btn light">Cancelar</button>
+    <button id="import-merge" type="button" class="btn light">Mesclar</button>
+    <button id="import-replace" type="button" class="btn dark">Substituir</button>
+  </div>
+</dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script type="module" src="js/sphere.js"></script>
 </body>
