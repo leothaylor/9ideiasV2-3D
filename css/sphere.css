@@ -37,3 +37,15 @@ dialog{border:1px solid #e0e4ed;background:#fff;color:#1b2537;box-shadow:var(--s
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);border-radius:10px;background:#222a3b;border:1px solid #464e63;box-shadow:0 15px 45px #0004;color:#fff;padding:12px 18px;font-size:12px;z-index:100}
 @media(max-width:1050px){.sidebar{width:215px;flex-basis:215px;padding-inline:14px}.bar{padding-inline:15px}.help-text{display:none}.identity strong{font-size:15px}.inspector{width:275px}}
 @media(max-width:680px){.bar{height:67px;gap:8px;padding:0 10px}.identity{gap:6px}.identity-mark{width:30px;height:30px;border-radius:8px;transform:scale(.84)}.identity strong{font-size:12px}.identity small{font-size:8px}.toolbar{gap:4px}.toolbar .btn{font-size:0;padding:8px;border-radius:7px}.toolbar .btn:not(.dark)::first-letter{font-size:0}.toolbar .btn.dark{font-size:10px;padding:8px}.sidebar{position:absolute;z-index:12;left:9px;bottom:8px;top:auto;width:min(240px,66vw);height:auto;max-height:44vh;border:1px solid #e0e5ed;border-radius:12px;box-shadow:var(--shadow);padding:12px}.sidebar section{margin-bottom:12px}.sidebar-bottom{display:none}.sidebar .control-group{margin-top:9px}.sidebar .eyebrow{margin:0 0 7px}.graph-stats{top:15px;left:11px}.graph-kicker{display:none}.graph-toolbar{bottom:16px;right:10px}.inspector{top:12px;right:9px;max-height:min(55vh,450px);width:min(285px,calc(100% - 18px));padding:13px}.inspector h2{font-size:16px}.help-text{display:none}}
+
+/* Mobile: preserve readable controls instead of hiding their labels. */
+@media(max-width:680px){
+  .bar{height:auto;min-height:67px;flex-wrap:wrap;align-content:center;gap:8px;padding:9px 11px}
+  .toolbar{width:100%;justify-content:space-between;gap:5px;overflow-x:auto}
+  .toolbar .btn,.toolbar .btn:not(.dark){font-size:10px;padding:8px 9px}
+  .toolbar .btn.dark{font-size:10px;padding:8px 9px}
+  .sidebar{max-height:40vh;left:7px;bottom:7px}
+  .universe{min-height:0}
+}
+.import-intro{margin:0 0 7px;font-size:13px;color:#354052;font-weight:700}
+.import-explain{font-size:12px;line-height:1.6;color:#7c879b;margin:0 0 12px}
