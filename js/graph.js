@@ -163,18 +163,41 @@ export function frameNodes(graph, nodes, durationMs = 0) {
 }
 
 /** Aplica modo "showcase": opacidade reduzida para nós fora do conjunto destacado. */
-export function applyHighlight(graph, highlightIds) {
+export function applyHighlight(graph, highlightIds, selectedId = null) {
+  const spotlight = highlightIds && highlightIds.size > 0;
   graph.graphData().nodes.forEach(node => {
     const obj = node.__threeObj;
     if (!obj) return;
-    const dim = highlightIds && highlightIds.size > 0 && !highlightIds.has(node.id);
-    const opacity = dim ? 0.12 : 1;
-    if (obj.userData.sphere) obj.userData.sphere.material.opacity = opacity;
-    if (obj.userData.ring) obj.userData.ring.material.opacity = dim ? 0.08 : 0.9;
-    if (obj.userData.text) obj.userData.text.fillOpacity = dim ? 0.15 : 1;
+    const dim = spotlight && !highlightIds.has(node.id);
+    const selected = selectedId === node.id;
+    if (obj.userData.sphere) {
+      obj.userData.sphere.material.opacity = dim ? 0.14 : 1;
+      obj.userData.sphere.scale.setScalar(selected ? 1.33 : 1);
+      obj.userData.sphere.material.emissive.setHex(selected ? 0x23324b : 0x000000);
+    }
+    if (obj.userData.ring) {
+      obj.userData.ring.material.opacity = dim ? 0.08 : 0.9;
+      obj.userData.ring.scale.setScalar(selected ? 1.28 : 1);
+    }
+    if (obj.userData.text) obj.userData.text.fillOpacity = dim ? 0.14 : 1;
   });
 
-  graph.linkOpacity(() => 1);
+  const idOf = value => typeof value === 'object' ? value.id : value;
+  graph.linkColor(link => {
+    if (!spotlight) return 'rgba(170,170,180,0.45)';
+    const source = idOf(link.source);
+    const target = idOf(link.target);
+    const focusEdge = selectedId && (source === selectedId || target === selectedId);
+    if (focusEdge) return 'rgba(191,212,255,0.95)';
+    return highlightIds.has(source) && highlightIds.has(target)
+      ? 'rgba(175,190,216,0.72)'
+      : 'rgba(118,127,148,0.055)';
+  });
+  graph.linkWidth(link => {
+    if (!spotlight || !selectedId) return 0.65;
+    return idOf(link.source) === selectedId || idOf(link.target) === selectedId ? 1.6 : 0.6;
+  });
+  graph.linkOpacity(1);
 }
 
 function escapeHtml(str) {
