@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Mapa de Knowledge 3D — Clássico</title>
+<link rel="stylesheet" href="css/style.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://esm.sh/three@0.180.0",
+    "three/addons/": "https://esm.sh/three@0.180.0/examples/jsm/",
+    "3d-force-graph": "https://esm.sh/3d-force-graph@1.73.3?deps=three@0.180.0",
+    "troika-three-text": "https://esm.sh/troika-three-text@0.52.4?deps=three@0.180.0"
+  }
+}
+</script>
+</head>
+<body>
+<header class="app-header">
+  <h1>Mapa de Knowledge</h1>
+  <div class="toolbar">
+    <button id="btn-add" title="Adicionar ideia">+ Ideia</button>
+    <button id="btn-export" title="Exportar JSON">Exportar</button>
+    <button id="btn-import" title="Importar arquivo">Importar</button>
+    <button id="btn-reset" title="Resetar física">Resetar física</button>
+    <button id="btn-filters" class="mobile-only" title="Mostrar filtros">Filtros</button>
+  </div>
+  <input type="file" id="file-input" accept=".json,.md,.txt" hidden>
+</header>
+
+<div class="app-body">
+  <aside class="side-panel" id="side-panel">
+    <h2>Legenda</h2>
+    <div class="legend" id="legend"></div>
+    <h2>Status</h2>
+    <div class="legend" id="legend-status"></div>
+    <h2>Tags</h2>
+    <div class="tag-list" id="tag-list"></div>
+  </aside>
+
+  <main class="canvas-box" id="canvas-box">
+    <div class="empty-hint" id="empty-hint" hidden>Nenhuma ideia ainda. Clique em "+ Ideia" para começar.</div>
+  </main>
+</div>
+
+<p class="footer-hint">Arraste para girar · scroll/pinça para zoom · arraste um nó para mover · toque rápido mostra detalhes</p>
+
+<dialog id="dialog-add">
+  <form id="form-add" method="dialog">
+    <h2>Nova ideia</h2>
+    <label>Título
+      <input type="text" id="add-label" required maxlength="60">
+    </label>
+    <label>Descrição
+      <textarea id="add-text" rows="3" maxlength="400"></textarea>
+    </label>
+    <label>Categoria
+      <select id="add-category">
+        <option value="bjj">BJJ</option>
+        <option value="financeiro">Financeiro</option>
+        <option value="negocio">Negócio</option>
+        <option value="organizacao">Organização</option>
+        <option value="ferramenta">Ferramenta</option>
+        <option value="outra">Outra</option>
+      </select>
+    </label>
+    <label>Status
+      <select id="add-status">
+        <option value="pending">Pendente</option>
+        <option value="progress">Em andamento</option>
+        <option value="done">Concluído</option>
+      </select>
+    </label>
+    <label>Tags (separadas por vírgula)
+      <input type="text" id="add-tags" placeholder="ex: acs, captura">
+    </label>
+    <div class="dialog-actions">
+      <button type="button" id="btn-add-cancel">Cancelar</button>
+      <button type="submit" id="btn-add-confirm">Adicionar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dialog-import-mode">
+  <form method="dialog">
+    <h2>Importar dados</h2>
+    <p>Deseja mesclar com os dados atuais ou substituir tudo?</p>
+    <div class="dialog-actions">
+      <button type="button" id="btn-import-merge">Mesclar</button>
+      <button type="button" id="btn-import-replace">Substituir</button>
+      <button type="button" id="btn-import-cancel">Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
