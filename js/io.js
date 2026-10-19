@@ -1,21 +1,28 @@
 import { jitterPosition, resetIdCounter } from './data.js';
 
-export function exportGraphData(graphData) {
-  const payload = {
+/** Exportação limpa: remove objetos Three.js e referências circulares da simulação. */
+export function snapshotGraphData(graphData) {
+  return {
     nodes: graphData.nodes.map(n => ({
-      id: n.id,
+      id: String(n.id),
       label: n.label,
       text: n.text,
       category: n.category,
       status: n.status,
-      tags: n.tags || [],
-      x: n.x, y: n.y, z: n.z,
+      tags: Array.isArray(n.tags) ? [...n.tags] : [],
+      x: Number.isFinite(n.x) ? n.x : undefined,
+      y: Number.isFinite(n.y) ? n.y : undefined,
+      z: Number.isFinite(n.z) ? n.z : undefined,
     })),
     links: graphData.links.map(l => ({
-      source: typeof l.source === 'object' ? l.source.id : l.source,
-      target: typeof l.target === 'object' ? l.target.id : l.target,
+      source: String(typeof l.source === 'object' ? l.source.id : l.source),
+      target: String(typeof l.target === 'object' ? l.target.id : l.target),
     })),
   };
+}
+
+export function exportGraphData(graphData) {
+  const payload = snapshotGraphData(graphData);
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
