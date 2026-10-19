@@ -110,6 +110,15 @@ function layoutGraph(force = false) {
   const cx = nodes.reduce((sum, node) => sum + node.x, 0) / n;
   const cy = nodes.reduce((sum, node) => sum + node.y, 0) / n;
   nodes.forEach(node => { node.x -= cx; node.y -= cy; });
+  // O espaço disponível é predominantemente horizontal no desktop.
+  // Alongar a rede sem alterar suas ligações evita um aglomerado no centro.
+  const minX = Math.min(...nodes.map(node => node.x));
+  const maxX = Math.max(...nodes.map(node => node.x));
+  const minY = Math.min(...nodes.map(node => node.y));
+  const maxY = Math.max(...nodes.map(node => node.y));
+  const ratio = Math.max(.2, (maxX - minX) / Math.max(1, maxY - minY));
+  const spread = Math.max(.75, Math.min(1.75, Math.sqrt(2.08 / ratio)));
+  nodes.forEach(node => { node.x *= spread; node.y /= spread; });
   data.layoutVersion = 2;
 }
 function save() {
@@ -138,6 +147,12 @@ function fit(animated = true) {
 }
 function updateCamera() {
   world.setAttribute('transform', 'translate(' + camera.x + ' ' + camera.y + ') scale(' + camera.z + ')');
+  // Os nomes permanecem legíveis independentemente do nível de zoom.
+  world.querySelectorAll('text[data-baseline]').forEach(label => {
+    label.style.fontSize = (11.7 / camera.z) + 'px';
+    label.style.strokeWidth = (3.7 / camera.z) + 'px';
+    label.setAttribute('y', Number(label.dataset.baseline) + 19 / camera.z);
+  });
   $('zoom-level').textContent = Math.round(camera.z * 100) + '%';
 }
 function zoom(factor, x = width / 2, y = height / 2) {
@@ -206,7 +221,7 @@ function renderGraph() {
     }
     group.appendChild(svg('circle', { cx: n.x, cy: n.y, r: radius, class: 'core', fill: color }));
     const label = n.label.length > 35 ? n.label.slice(0, 34) + '…' : n.label;
-    const text = svg('text', { x: n.x, y: n.y + radius + 20, 'text-anchor': 'middle' }, label);
+    const text = svg('text', { x: n.x, y: n.y + radius + 20, 'text-anchor': 'middle', 'data-baseline': n.y + radius }, label);
     group.appendChild(text);
     group.appendChild(svg('circle', { cx: n.x, cy: n.y, r: Math.max(24, radius + 10), class: 'hit' }));
     nodesGroup.appendChild(group);
