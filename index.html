@@ -23,7 +23,8 @@
     <button id="btn-add" title="Adicionar ideia">+ Ideia</button>
     <button id="btn-export" title="Exportar JSON">Exportar</button>
     <button id="btn-import" title="Importar arquivo">Importar</button>
-    <button id="btn-reset" title="Resetar física">Resetar física</button>
+    <button id="btn-reset" title="Reorganizar os pontos">Resetar física</button>
+    <button id="btn-frame" title="Enquadrar toda a rede">Enquadrar</button>
     <button id="btn-filters" class="mobile-only" title="Mostrar filtros">Filtros</button>
   </div>
   <input type="file" id="file-input" accept=".json,.md,.txt" hidden>
@@ -31,6 +32,13 @@
 
 <div class="app-body">
   <aside class="side-panel" id="side-panel">
+    <h2>Explorar</h2>
+    <label class="explore-label" for="node-search">Buscar conceito</label>
+    <input id="node-search" type="search" autocomplete="off" placeholder="Nome, descrição ou tag…">
+    <div id="search-feedback" class="explore-feedback" aria-live="polite"></div>
+    <label class="explore-label" for="depth-select">Relações do conceito</label>
+    <select id="depth-select"><option value="1">1 conexão</option><option value="2">2 conexões</option><option value="3">3 conexões</option></select>
+    <button type="button" id="btn-show-all" class="panel-button">Mostrar rede completa</button>
     <h2>Legenda</h2>
     <div class="legend" id="legend"></div>
     <h2>Status</h2>
@@ -41,6 +49,16 @@
 
   <main class="canvas-box" id="canvas-box">
     <div class="empty-hint" id="empty-hint" hidden>Nenhuma ideia ainda. Clique em "+ Ideia" para começar.</div>
+    <section id="node-inspector" class="node-inspector" hidden aria-label="Detalhes do conceito selecionado">
+      <div class="inspector-top"><span id="inspector-category"></span><button id="btn-inspector-close" type="button" aria-label="Fechar detalhes">×</button></div>
+      <h2 id="inspector-title"></h2>
+      <p id="inspector-text"></p>
+      <div id="inspector-tags"></div>
+      <h3>Conexões diretas</h3>
+      <ul id="inspector-neighbors"></ul>
+      <label for="connect-target">Conectar a outro conceito</label>
+      <div class="connect-row"><select id="connect-target"></select><button type="button" id="btn-connect">Conectar</button></div>
+    </section>
   </main>
 </div>
 
