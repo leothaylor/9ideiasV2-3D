@@ -74,9 +74,12 @@ async function loadInitialData() {
 }
 
 function setGraphData(data) {
+  // Copia somente os dados: não reutiliza meshes Three.js descartados no merge.
+  const cleanData = snapshotGraphData(data);
   (currentData.nodes || []).forEach(node => {
     if (node.__threeObj) disposeNode(node.__threeObj);
   });
+  data = cleanData;
   currentData = data;
   resetIdCounter(data.nodes);
   selectedId = data.nodes.some(node => node.id === selectedId) ? selectedId : null;
