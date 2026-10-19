@@ -2,6 +2,19 @@
 
 Ferramenta pessoal para capturar ideias e tarefas soltas e visualizar conexões entre elas como um grafo 3D navegável. 100% client-side — sem login, sem backend, sem banco de dados.
 
+## Melhorias experimentais — exploração de conexões
+
+Esta branch adiciona recursos inspirados na navegação por grafos do Obsidian, mantendo o motor 3D original:
+
+- **Pesquisar conceitos** pelo título, descrição ou tags; pressione Enter para centralizar no primeiro resultado.
+- **Clicar em um ponto** para abrir seus detalhes e destacar até três níveis de vizinhança.
+- **Explorar conceitos adjacentes** pelo painel, criar novas ligações e remover ligações existentes.
+- **Enquadrar** a rede inteira sem resetar seus dados.
+- **Salvar automaticamente** os dados no `localStorage` deste navegador; posições, ideias e conexões são preservadas após recarregar a página.
+- **Exportar JSON** continua sendo necessário para backup e troca entre dispositivos. O armazenamento local não sincroniza com Notion, ChatGPT ou outros navegadores.
+
+Os vínculos destacados são **relações explicitamente cadastradas ou importadas**. Não representam automaticamente similaridade semântica gerada por IA.
+
 ## 1. Testar localmente
 
 Como o app usa ES Modules (`<script type="module">`), não dá para abrir `index.html` direto com duplo clique (o navegador bloqueia `fetch`/imports em `file://`). É preciso servir os arquivos com um servidor estático simples:
