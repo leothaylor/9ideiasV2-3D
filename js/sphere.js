@@ -352,8 +352,8 @@ function initGraph(){
     el.style.left=Math.max(8,Math.min(x+15,rect.width-245))+'px';
     el.style.top=Math.max(8,Math.min(y+14,rect.height-50))+'px';
   });
-  // Fixed node positions don't need continuous force physics, only rendering.
-  graph.pauseAnimation();
+  // A render loop keeps rotation and depth opacity updated after physics cools.
+  // Keep the graph's own pointer/picking handlers active for clickable concepts.
   function frame(){
     if(!document.hidden){
       controls.update();updateFade();
