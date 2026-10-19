@@ -1,99 +1,125 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Mapa de Knowledge 3D — Clássico</title>
-<link rel="stylesheet" href="css/style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5f6f8">
+<meta name="description" content="Explore seus conceitos conectados em uma constelação esférica 3D.">
+<title>Mapa de Knowledge — Esfera 3D</title>
+<link rel="stylesheet" href="css/sphere.css">
 <script type="importmap">
 {
   "imports": {
     "three": "https://esm.sh/three@0.180.0",
     "three/addons/": "https://esm.sh/three@0.180.0/examples/jsm/",
-    "3d-force-graph": "https://esm.sh/3d-force-graph@1.73.3?deps=three@0.180.0",
-    "troika-three-text": "https://esm.sh/troika-three-text@0.52.4?deps=three@0.180.0"
+    "3d-force-graph": "https://esm.sh/3d-force-graph@1.73.3?deps=three@0.180.0"
   }
 }
 </script>
 </head>
 <body>
-<header class="app-header">
-  <h1>Mapa de Knowledge</h1>
-  <div class="toolbar">
-    <button id="btn-add" title="Adicionar ideia">+ Ideia</button>
-    <button id="btn-export" title="Exportar JSON">Exportar</button>
-    <button id="btn-import" title="Importar arquivo">Importar</button>
-    <button id="btn-reset" title="Resetar física">Resetar física</button>
-    <button id="btn-filters" class="mobile-only" title="Mostrar filtros">Filtros</button>
+<div class="app">
+  <header class="bar">
+    <div class="identity">
+      <span class="identity-mark" aria-hidden="true"><span class="ring ring-a"></span><span class="ring ring-b"></span><span class="center-dot"></span></span>
+      <div><strong>Mapa de Knowledge</strong><small>Visualização esférica · 3D</small></div>
+    </div>
+    <nav class="toolbar" aria-label="Ações do mapa">
+      <a class="btn light" href="index.html" title="Voltar à versão 2D">Mapa 2D</a>
+      <button type="button" class="btn light" id="btn-import">Importar</button>
+      <button type="button" class="btn light" id="btn-export">Exportar</button>
+      <button type="button" class="btn dark" id="btn-add"><span aria-hidden="true">＋</span> Nova ideia</button>
+      <input id="file-import" type="file" accept=".json,.md,.txt" hidden>
+    </nav>
+  </header>
+  <div class="workspace">
+    <aside class="sidebar" id="sidebar">
+      <section>
+        <p class="eyebrow">EXPLORAR</p>
+        <label class="search-wrap" for="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Buscar conceito…" autocomplete="off"></label>
+        <div class="search-list" id="search-list" hidden></div>
+      </section>
+      <section>
+        <p class="eyebrow">VISUALIZAÇÃO</p>
+        <button class="side-action" id="btn-fit" type="button"><span>◎</span> Centralizar esfera</button>
+        <button class="side-action" id="btn-rotate" type="button" aria-pressed="true"><span>⟳</span> Rotação suave <small id="rotate-state">Ativa</small></button>
+        <div class="control-group">
+          <div class="control-label"><label for="density">Densidade da malha</label><output id="density-value">Equilibrada</output></div>
+          <input type="range" id="density" min="1" max="3" value="2" step="1">
+          <div class="control-scale"><span>Leve</span><span>Detalhada</span></div>
+        </div>
+        <div class="control-group">
+          <div class="control-label"><label for="fade">Transparência no zoom</label><output id="fade-value">70%</output></div>
+          <input type="range" id="fade" min="0" max="90" value="70" step="5">
+          <div class="control-scale"><span>Discreta</span><span>Intensa</span></div>
+        </div>
+      </section>
+      <section>
+        <p class="eyebrow">CATEGORIAS</p>
+        <div class="categories" id="categories"></div>
+      </section>
+      <div class="sidebar-bottom">
+        <div class="info-block"><strong>Leitura do mapa</strong><p>Os pontos coloridos são suas ideias. Linhas violeta representam relações cadastradas. A malha cinza é visual, não cria vínculos entre conceitos.</p></div>
+        <div class="saved"><span class="saved-dot"></span><span id="save-status">Carregando…</span></div>
+      </div>
+    </aside>
+    <main class="universe" id="universe">
+      <div id="graph" aria-label="Grafo esférico tridimensional interativo"></div>
+      <div class="graph-stats"><span class="status-light"></span><b id="node-count">0</b> conceitos <i></i> <b id="edge-count">0</b> conexões</div>
+      <div class="graph-kicker">MAPA DE CONEXÕES <span>·</span> VISÃO ESFÉRICA</div>
+      <div id="hover-label" class="hover-label" hidden></div>
+      <div class="graph-toolbar" role="group" aria-label="Aproximação">
+        <button id="zoom-out" type="button" title="Afastar">−</button>
+        <button id="zoom-in" type="button" title="Aproximar">+</button>
+        <span class="graph-toolbar-divider"></span>
+        <button id="zoom-fit" type="button" title="Enquadrar">⤢</button>
+      </div>
+      <div class="help-text">Arraste para girar <i></i> Role para aproximar e afastar <i></i> Clique em um ponto colorido</div>
+      <div class="empty" id="empty" hidden>Nenhuma ideia cadastrada. Use <b>Nova ideia</b> para começar.</div>
+      <div class="graph-error" id="graph-error" hidden></div>
+      <aside class="inspector" id="inspector" hidden aria-label="Detalhes do conceito">
+        <div class="inspector-head"><span id="inspect-category"></span><button id="inspect-close" type="button" title="Fechar">×</button></div>
+        <h2 id="inspect-name"></h2>
+        <p id="inspect-text"></p>
+        <div id="inspect-tags" class="tags"></div>
+        <div class="rule"></div>
+        <h3>CONEXÕES DIRETAS</h3>
+        <div id="inspect-links" class="neighbors"></div>
+        <label class="connect-label" for="connect-select">Criar relação</label>
+        <div class="connect-form"><select id="connect-select" aria-label="Escolher conceito para conectar"></select><button id="connect-add" type="button" title="Criar conexão">+</button></div>
+        <div class="inspector-actions"><button id="inspect-edit" type="button">Editar ideia</button><button id="inspect-remove" type="button" class="danger">Excluir</button></div>
+      </aside>
+    </main>
   </div>
-  <input type="file" id="file-input" accept=".json,.md,.txt" hidden>
-</header>
-
-<div class="app-body">
-  <aside class="side-panel" id="side-panel">
-    <h2>Legenda</h2>
-    <div class="legend" id="legend"></div>
-    <h2>Status</h2>
-    <div class="legend" id="legend-status"></div>
-    <h2>Tags</h2>
-    <div class="tag-list" id="tag-list"></div>
-  </aside>
-
-  <main class="canvas-box" id="canvas-box">
-    <div class="empty-hint" id="empty-hint" hidden>Nenhuma ideia ainda. Clique em "+ Ideia" para começar.</div>
-  </main>
 </div>
-
-<p class="footer-hint">Arraste para girar · scroll/pinça para zoom · arraste um nó para mover · toque rápido mostra detalhes</p>
-
-<dialog id="dialog-add">
-  <form id="form-add" method="dialog">
-    <h2>Nova ideia</h2>
-    <label>Título
-      <input type="text" id="add-label" required maxlength="60">
-    </label>
-    <label>Descrição
-      <textarea id="add-text" rows="3" maxlength="400"></textarea>
-    </label>
-    <label>Categoria
-      <select id="add-category">
-        <option value="bjj">BJJ</option>
-        <option value="financeiro">Financeiro</option>
-        <option value="negocio">Negócio</option>
-        <option value="organizacao">Organização</option>
-        <option value="ferramenta">Ferramenta</option>
-        <option value="outra">Outra</option>
-      </select>
-    </label>
-    <label>Status
-      <select id="add-status">
-        <option value="pending">Pendente</option>
-        <option value="progress">Em andamento</option>
-        <option value="done">Concluído</option>
-      </select>
-    </label>
-    <label>Tags (separadas por vírgula)
-      <input type="text" id="add-tags" placeholder="ex: acs, captura">
-    </label>
-    <div class="dialog-actions">
-      <button type="button" id="btn-add-cancel">Cancelar</button>
-      <button type="submit" id="btn-add-confirm">Adicionar</button>
-    </div>
+<dialog id="idea-dialog">
+  <form id="idea-form">
+    <div class="dialog-head"><div><p class="eyebrow">CONCEITOS</p><h2 id="idea-title">Nova ideia</h2></div><button id="idea-x" type="button" aria-label="Fechar">×</button></div>
+    <label>Título<input id="idea-name" type="text" required maxlength="100" placeholder="Nome do conceito"></label>
+    <label>Descrição<textarea id="idea-text" rows="4" placeholder="Contexto, hipótese ou observação"></textarea></label>
+    <div class="fields-pair"><label>Categoria<select id="idea-category">
+      <option value="bjj">Jiu-jitsu</option><option value="financeiro">Financeiro</option>
+      <option value="negocio">Negócios</option><option value="organizacao">Organização</option>
+      <option value="ferramenta">Ferramentas</option><option value="outra">Outros</option>
+    </select></label><label>Status<select id="idea-status">
+      <option value="pending">Pendente</option><option value="progress">Em andamento</option>
+      <option value="done">Concluído</option>
+    </select></label></div>
+    <label>Tags, separadas por vírgula<input id="idea-tags" type="text" placeholder="estudo, projeto, pesquisa"></label>
+    <div class="dialog-actions"><button id="idea-cancel" type="button" class="btn light">Cancelar</button><button type="submit" class="btn dark">Salvar conceito</button></div>
   </form>
 </dialog>
-
-<dialog id="dialog-import-mode">
-  <form method="dialog">
-    <h2>Importar dados</h2>
-    <p>Deseja mesclar com os dados atuais ou substituir tudo?</p>
-    <div class="dialog-actions">
-      <button type="button" id="btn-import-merge">Mesclar</button>
-      <button type="button" id="btn-import-replace">Substituir</button>
-      <button type="button" id="btn-import-cancel">Cancelar</button>
-    </div>
-  </form>
+<dialog id="import-dialog">
+  <div class="dialog-head"><div><p class="eyebrow">IMPORTAÇÃO</p><h2>Como importar?</h2></div></div>
+  <p id="import-count" class="import-intro"></p>
+  <p class="import-explain">Mesclar acrescenta conceitos e relações; substituir apaga o mapa atual deste navegador. Faça um backup JSON se necessário.</p>
+  <div class="dialog-actions">
+    <button id="import-cancel" type="button" class="btn light">Cancelar</button>
+    <button id="import-merge" type="button" class="btn light">Mesclar</button>
+    <button id="import-replace" type="button" class="btn dark">Substituir</button>
+  </div>
 </dialog>
-
-<script type="module" src="js/main.js"></script>
+<div class="toast" id="toast" role="status" hidden></div>
+<script type="module" src="js/sphere.js"></script>
 </body>
 </html>
